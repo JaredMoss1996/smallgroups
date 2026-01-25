@@ -2,6 +2,8 @@ package com.smallgroups.service;
 
 import com.smallgroups.model.User;
 import com.smallgroups.repository.UserRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -33,11 +37,19 @@ public class CustomUserDetailsService implements UserDetailsService {
                 true, // accountNonExpired
                 true, // credentialsNonExpired
                 true, // accountNonLocked
-                new ArrayList<>() // authorities
+                getAuthorities(user.getRole())
         );
     }
     
-    public User registerUser(String email, String password, String name) {
+    private Collection<? extends GrantedAuthority> getAuthorities(String role) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (role != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+        }
+        return authorities;
+    }
+    
+    public User registerUser(String email, String password, String name, Long homeChurchId) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("Email already registered");
         }
@@ -48,6 +60,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setName(name);
         user.setProvider("local");
         user.setEnabled(true);
+        user.setRole("USER");
+        user.setHomeChurchId(homeChurchId);
+        user.setApprovedForGroupCreation(false);
         
         return userRepository.save(user);
     }
@@ -60,7 +75,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                     newUser.setName(name);
                     newUser.setProvider("google");
                     newUser.setEnabled(true);
+                    newUser.setRole("USER");
+                    newUser.setApprovedForGroupCreation(false);
                     return userRepository.save(newUser);
                 });
+    }
+    
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

@@ -2,6 +2,7 @@ package com.smallgroups.service;
 
 import com.smallgroups.model.SmallGroup;
 import com.smallgroups.repository.SmallGroupRepository;
+import com.smallgroups.repository.UserGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,11 @@ import java.util.stream.Collectors;
 public class SmallGroupService {
     
     private final SmallGroupRepository repository;
+    private final UserGroupRepository userGroupRepository;
     
-    public SmallGroupService(SmallGroupRepository repository) {
+    public SmallGroupService(SmallGroupRepository repository, UserGroupRepository userGroupRepository) {
         this.repository = repository;
+        this.userGroupRepository = userGroupRepository;
     }
     
     public List<SmallGroup> getAllGroups() {
@@ -103,5 +106,27 @@ public class SmallGroupService {
         double distance = R * c;
         
         return distance; // returns distance in km
+    }
+    
+    public void joinGroup(Long userId, Long groupId) {
+        if (!userGroupRepository.existsByUserIdAndGroupId(userId, groupId)) {
+            userGroupRepository.save(userId, groupId);
+        }
+    }
+    
+    public void leaveGroup(Long userId, Long groupId) {
+        userGroupRepository.delete(userId, groupId);
+    }
+    
+    public List<SmallGroup> getJoinedGroups(Long userId) {
+        return userGroupRepository.findByUserId(userId).stream()
+                .map(ug -> repository.findById(ug.getGroupId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+    
+    public boolean isUserMember(Long userId, Long groupId) {
+        return userGroupRepository.existsByUserIdAndGroupId(userId, groupId);
     }
 }

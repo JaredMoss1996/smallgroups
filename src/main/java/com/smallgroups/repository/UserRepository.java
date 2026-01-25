@@ -33,6 +33,14 @@ public class UserRepository {
                 .optional();
     }
     
+    public Optional<User> findById(Long id) {
+        String sql = "SELECT * FROM users WHERE id = :id";
+        return jdbcClient.sql(sql)
+                .param("id", id)
+                .query(this::mapRowToUser)
+                .optional();
+    }
+    
     public User save(User user) {
         if (user.getId() == null) {
             return insert(user);
@@ -48,6 +56,9 @@ public class UserRepository {
         parameters.put("name", user.getName());
         parameters.put("provider", user.getProvider());
         parameters.put("enabled", user.getEnabled());
+        parameters.put("role", user.getRole());
+        parameters.put("home_church_id", user.getHomeChurchId());
+        parameters.put("approved_for_group_creation", user.getApprovedForGroupCreation());
         
         Number newId = jdbcInsert.executeAndReturnKey(parameters);
         user.setId(newId.longValue());
@@ -61,7 +72,10 @@ public class UserRepository {
                 password = :password,
                 name = :name,
                 provider = :provider,
-                enabled = :enabled
+                enabled = :enabled,
+                role = :role,
+                home_church_id = :homeChurchId,
+                approved_for_group_creation = :approvedForGroupCreation
             WHERE id = :id
             """;
         
@@ -72,6 +86,9 @@ public class UserRepository {
                 .param("name", user.getName())
                 .param("provider", user.getProvider())
                 .param("enabled", user.getEnabled())
+                .param("role", user.getRole())
+                .param("homeChurchId", user.getHomeChurchId())
+                .param("approvedForGroupCreation", user.getApprovedForGroupCreation())
                 .update();
         
         return user;
@@ -85,6 +102,9 @@ public class UserRepository {
         user.setName(rs.getString("name"));
         user.setProvider(rs.getString("provider"));
         user.setEnabled(rs.getBoolean("enabled"));
+        user.setRole(rs.getString("role"));
+        user.setHomeChurchId(rs.getObject("home_church_id", Long.class));
+        user.setApprovedForGroupCreation(rs.getBoolean("approved_for_group_creation"));
         return user;
     }
 }

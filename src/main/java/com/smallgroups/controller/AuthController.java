@@ -23,12 +23,18 @@ public class AuthController {
             String email = signupRequest.get("email");
             String password = signupRequest.get("password");
             String name = signupRequest.get("name");
+            String homeChurchIdStr = signupRequest.get("homeChurchId");
             
             if (email == null || password == null || name == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "All fields are required"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Email, password, and name are required"));
             }
             
-            User user = userDetailsService.registerUser(email, password, name);
+            Long homeChurchId = null;
+            if (homeChurchIdStr != null && !homeChurchIdStr.isEmpty()) {
+                homeChurchId = Long.parseLong(homeChurchIdStr);
+            }
+            
+            User user = userDetailsService.registerUser(email, password, name, homeChurchId);
             return ResponseEntity.ok(Map.of("message", "User registered successfully", "email", user.getEmail()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

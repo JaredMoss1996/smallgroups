@@ -1,3 +1,26 @@
+CREATE TABLE IF NOT EXISTS churches (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    denomination VARCHAR(255),
+    address VARCHAR(500),
+    city VARCHAR(255),
+    state VARCHAR(50),
+    zip_code VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255),
+    name VARCHAR(255),
+    provider VARCHAR(50) DEFAULT 'local',
+    enabled BOOLEAN DEFAULT TRUE,
+    role VARCHAR(50) DEFAULT 'USER',
+    home_church_id BIGINT,
+    approved_for_group_creation BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (home_church_id) REFERENCES churches(id) ON DELETE SET NULL
+);
+
 CREATE TABLE IF NOT EXISTS small_groups (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -20,14 +43,31 @@ CREATE TABLE IF NOT EXISTS small_groups (
     contact_phone VARCHAR(50),
     current_size INTEGER,
     max_size INTEGER,
-    image_url VARCHAR(2048)
+    image_url VARCHAR(2048),
+    creator_id BIGINT,
+    FOREIGN KEY (creator_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS user_groups (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255),
-    name VARCHAR(255),
-    provider VARCHAR(50) DEFAULT 'local',
-    enabled BOOLEAN DEFAULT TRUE
+    user_id BIGINT NOT NULL,
+    group_id BIGINT NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES small_groups(id) ON DELETE CASCADE,
+    UNIQUE (user_id, group_id)
+);
+
+CREATE TABLE IF NOT EXISTS approval_requests (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    church_id BIGINT NOT NULL,
+    message TEXT,
+    status VARCHAR(50) DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at TIMESTAMP,
+    reviewed_by BIGINT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (church_id) REFERENCES churches(id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewed_by) REFERENCES users(id)
 );

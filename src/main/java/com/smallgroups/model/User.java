@@ -15,4 +15,7 @@ public class User {
     private String name;
     private String provider; // "local" or "google"
     private Boolean enabled = true;
+    private String role = "USER"; // "ADMIN", "GROUP_CREATOR", "USER"
+    private Long homeChurchId;
+    private Boolean approvedForGroupCreation = false;
 }

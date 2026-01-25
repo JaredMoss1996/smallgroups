@@ -30,4 +30,9 @@ public class WebController {
     public String createGroup() {
         return "create-group";
     }
+    
+    @GetMapping("/joined-groups")
+    public String joinedGroups() {
+        return "joined-groups";
+    }
 }

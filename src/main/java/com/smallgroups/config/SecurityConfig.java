@@ -42,8 +42,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/login", "/signup", "/api/auth/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/find", "/api/groups/search", "/api/groups").permitAll()
+                .requestMatchers("/", "/login", "/signup", "/api/auth/**", "/api/churches", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/create").hasAnyRole("GROUP_CREATOR", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
