@@ -43,7 +43,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/", "/login", "/signup", "/api/auth/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/find", "/api/groups/search", "/api/groups").permitAll()
+                .requestMatchers("/create").hasAnyRole("GROUP_CREATOR", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

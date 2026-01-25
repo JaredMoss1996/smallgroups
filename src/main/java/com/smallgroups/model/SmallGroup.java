@@ -52,4 +52,6 @@ public class SmallGroup {
     private Integer maxSize;
     
     private String imageUrl;
+    
+    private Long creatorId;
 }
