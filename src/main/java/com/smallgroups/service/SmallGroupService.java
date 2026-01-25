@@ -12,8 +12,11 @@ import java.util.stream.Collectors;
 @Service
 public class SmallGroupService {
     
-    @Autowired
-    private SmallGroupRepository repository;
+    private final SmallGroupRepository repository;
+    
+    public SmallGroupService(SmallGroupRepository repository) {
+        this.repository = repository;
+    }
     
     public List<SmallGroup> getAllGroups() {
         return repository.findAll();

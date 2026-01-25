@@ -12,8 +12,11 @@ import java.util.List;
 @RequestMapping("/api/groups")
 public class SmallGroupApiController {
     
-    @Autowired
-    private SmallGroupService service;
+    private final SmallGroupService service;
+    
+    public SmallGroupApiController(SmallGroupService service) {
+        this.service = service;
+    }
     
     @GetMapping
     public List<SmallGroup> getAllGroups() {
