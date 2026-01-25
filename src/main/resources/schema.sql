@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS small_groups (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    church_name VARCHAR(255) NOT NULL,
+    denomination VARCHAR(255),
+    location VARCHAR(255) NOT NULL,
+    address VARCHAR(500),
+    latitude DOUBLE,
+    longitude DOUBLE,
+    description VARCHAR(1000),
+    age_group VARCHAR(50),
+    gender VARCHAR(50),
+    type VARCHAR(100),
+    meeting_day VARCHAR(50),
+    meeting_time VARCHAR(50),
+    childcare_included BOOLEAN DEFAULT FALSE,
+    handicap_accessible BOOLEAN DEFAULT FALSE,
+    contact_name VARCHAR(255),
+    contact_email VARCHAR(255),
+    contact_phone VARCHAR(50),
+    current_size INTEGER,
+    max_size INTEGER
+);
