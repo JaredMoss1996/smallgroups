@@ -54,6 +54,7 @@ public class SmallGroupService {
         group.setContactPhone(groupDetails.getContactPhone());
         group.setCurrentSize(groupDetails.getCurrentSize());
         group.setMaxSize(groupDetails.getMaxSize());
+        group.setImageUrl(groupDetails.getImageUrl());
         
         return repository.save(group);
     }

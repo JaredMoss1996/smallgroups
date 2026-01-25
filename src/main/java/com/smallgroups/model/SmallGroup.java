@@ -50,4 +50,6 @@ public class SmallGroup {
     private Integer currentSize;
     
     private Integer maxSize;
+    
+    private String imageUrl;
 }

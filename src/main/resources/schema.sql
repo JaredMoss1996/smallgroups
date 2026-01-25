@@ -19,5 +19,6 @@ CREATE TABLE IF NOT EXISTS small_groups (
     contact_email VARCHAR(255),
     contact_phone VARCHAR(50),
     current_size INTEGER,
-    max_size INTEGER
+    max_size INTEGER,
+    image_url VARCHAR(2048)
 );
