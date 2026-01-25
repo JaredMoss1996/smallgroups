@@ -20,22 +20,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
     
-    private final CustomUserDetailsService userDetailsService;
-    
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
-    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
     
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
     
@@ -45,7 +39,7 @@ public class SecurityConfig {
     }
     
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/", "/login", "/signup", "/api/auth/**", "/css/**", "/js/**", "/images/**").permitAll()
@@ -64,7 +58,7 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/find", true)
                 .failureUrl("/login?error=true")
                 .userInfoEndpoint(userInfo -> userInfo
-                    .userService(oauth2UserService())
+                    .userService(oauth2UserService(userDetailsService))
                 )
             )
             .logout(logout -> logout
@@ -80,7 +74,7 @@ public class SecurityConfig {
     }
     
     @Bean
-    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService(CustomUserDetailsService userDetailsService) {
         DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
         
         return request -> {
