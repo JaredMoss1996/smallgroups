@@ -200,79 +200,45 @@ public class SmallGroupRepository {
                                           String location, Boolean childcareIncluded,
                                           Boolean handicapAccessible) {
         StringBuilder sql = new StringBuilder("SELECT * FROM small_groups WHERE 1=1");
-        
-        var query = jdbcClient.sql(sql.toString());
+        Map<String, Object> params = new HashMap<>();
         
         if (churchName != null && !churchName.isEmpty()) {
             sql.append(" AND LOWER(church_name) LIKE LOWER(:churchName)");
-            query = jdbcClient.sql(sql.toString()).param("churchName", "%" + churchName + "%");
-        }
-        if (denomination != null && !denomination.isEmpty()) {
-            sql.append(" AND LOWER(denomination) = LOWER(:denomination)");
-            query = query.param("denomination", denomination);
-        }
-        if (ageGroup != null && !ageGroup.isEmpty()) {
-            sql.append(" AND age_group = :ageGroup");
-            query = query.param("ageGroup", ageGroup);
-        }
-        if (gender != null && !gender.isEmpty()) {
-            sql.append(" AND gender = :gender");
-            query = query.param("gender", gender);
-        }
-        if (type != null && !type.isEmpty()) {
-            sql.append(" AND type = :type");
-            query = query.param("type", type);
-        }
-        if (location != null && !location.isEmpty()) {
-            sql.append(" AND LOWER(location) LIKE LOWER(:location)");
-            query = query.param("location", "%" + location + "%");
-        }
-        if (childcareIncluded != null) {
-            sql.append(" AND childcare_included = :childcareIncluded");
-            query = query.param("childcareIncluded", childcareIncluded);
-        }
-        if (handicapAccessible != null) {
-            sql.append(" AND handicap_accessible = :handicapAccessible");
-            query = query.param("handicapAccessible", handicapAccessible);
-        }
-        
-        return jdbcClient.sql(sql.toString())
-                .params(buildSearchParams(churchName, denomination, ageGroup, gender, type, location, 
-                        childcareIncluded, handicapAccessible))
-                .query(this::mapRowToSmallGroup)
-                .list();
-    }
-    
-    private Map<String, Object> buildSearchParams(String churchName, String denomination,
-                                                   String ageGroup, String gender, String type,
-                                                   String location, Boolean childcareIncluded,
-                                                   Boolean handicapAccessible) {
-        Map<String, Object> params = new HashMap<>();
-        if (churchName != null && !churchName.isEmpty()) {
             params.put("churchName", "%" + churchName + "%");
         }
         if (denomination != null && !denomination.isEmpty()) {
+            sql.append(" AND LOWER(denomination) = LOWER(:denomination)");
             params.put("denomination", denomination);
         }
         if (ageGroup != null && !ageGroup.isEmpty()) {
+            sql.append(" AND age_group = :ageGroup");
             params.put("ageGroup", ageGroup);
         }
         if (gender != null && !gender.isEmpty()) {
+            sql.append(" AND gender = :gender");
             params.put("gender", gender);
         }
         if (type != null && !type.isEmpty()) {
+            sql.append(" AND type = :type");
             params.put("type", type);
         }
         if (location != null && !location.isEmpty()) {
+            sql.append(" AND LOWER(location) LIKE LOWER(:location)");
             params.put("location", "%" + location + "%");
         }
         if (childcareIncluded != null) {
+            sql.append(" AND childcare_included = :childcareIncluded");
             params.put("childcareIncluded", childcareIncluded);
         }
         if (handicapAccessible != null) {
+            sql.append(" AND handicap_accessible = :handicapAccessible");
             params.put("handicapAccessible", handicapAccessible);
         }
-        return params;
+        
+        return jdbcClient.sql(sql.toString())
+                .params(params)
+                .query(this::mapRowToSmallGroup)
+                .list();
     }
     
     private SmallGroup mapRowToSmallGroup(ResultSet rs, int rowNum) throws SQLException {
