@@ -343,7 +343,12 @@
                     const url = isLeave ? `/api/groups/${groupId}/leave` : `/api/groups/${groupId}/join`;
                     
                     fetch(url, { method: 'POST' })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to ' + (isLeave ? 'leave' : 'join') + ' group');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (isLeave) {
                                 button.classList.remove('btn-secondary');

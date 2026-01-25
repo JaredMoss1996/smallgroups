@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(50) DEFAULT 'USER',
     home_church_id BIGINT,
     approved_for_group_creation BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (home_church_id) REFERENCES churches(id)
+    FOREIGN KEY (home_church_id) REFERENCES churches(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS small_groups (

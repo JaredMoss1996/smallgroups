@@ -167,7 +167,12 @@
                     const groupId = this.getAttribute('data-group-id');
                     if (confirm('Are you sure you want to leave this group?')) {
                         fetch(`/api/groups/${groupId}/leave`, { method: 'POST' })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Failed to leave group');
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 // Reload the page to refresh the list
                                 location.reload();

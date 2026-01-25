@@ -34,12 +34,19 @@ public class ApprovalRequestApiController {
                 return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
             }
             
-            Long churchId = Long.parseLong(request.get("churchId"));
+            String churchIdStr = request.get("churchId");
+            if (churchIdStr == null || churchIdStr.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Church ID is required"));
+            }
+            
+            Long churchId = Long.parseLong(churchIdStr);
             String message = request.get("message");
             
             ApprovalRequest approvalRequest = approvalRequestService.createRequest(
                     user.getId(), churchId, message);
             return ResponseEntity.ok(approvalRequest);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid church ID"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -56,7 +63,18 @@ public class ApprovalRequestApiController {
     }
     
     @GetMapping("/church/{churchId}")
-    public ResponseEntity<List<ApprovalRequest>> getRequestsByChurch(@PathVariable Long churchId) {
+    public ResponseEntity<?> getRequestsByChurch(@PathVariable Long churchId, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userDetailsService.getUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(403).body(Map.of("error", "User not found"));
+        }
+        
+        // Only ADMIN users or users with the church as their home church can view requests
+        if (!"ADMIN".equals(user.getRole()) && !churchId.equals(user.getHomeChurchId())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Not authorized to view these requests"));
+        }
+        
         return ResponseEntity.ok(approvalRequestService.getRequestsByChurch(churchId));
     }
     
@@ -67,6 +85,12 @@ public class ApprovalRequestApiController {
         if (user == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
         }
+        
+        // Only ADMIN users can approve requests
+        if (!"ADMIN".equals(user.getRole())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Only administrators can approve requests"));
+        }
+        
         approvalRequestService.approveRequest(id, user.getId());
         return ResponseEntity.ok(Map.of("message", "Request approved"));
     }
@@ -78,6 +102,12 @@ public class ApprovalRequestApiController {
         if (user == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
         }
+        
+        // Only ADMIN users can reject requests
+        if (!"ADMIN".equals(user.getRole())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Only administrators can reject requests"));
+        }
+        
         approvalRequestService.rejectRequest(id, user.getId());
         return ResponseEntity.ok(Map.of("message", "Request rejected"));
     }
