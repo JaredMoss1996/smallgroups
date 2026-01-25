@@ -19,5 +19,15 @@ CREATE TABLE IF NOT EXISTS small_groups (
     contact_email VARCHAR(255),
     contact_phone VARCHAR(50),
     current_size INTEGER,
-    max_size INTEGER
+    max_size INTEGER,
+    image_url VARCHAR(2048)
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255),
+    name VARCHAR(255),
+    provider VARCHAR(50) DEFAULT 'local',
+    enabled BOOLEAN DEFAULT TRUE
 );

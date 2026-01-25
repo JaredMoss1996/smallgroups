@@ -73,6 +73,7 @@ public class SmallGroupRepository {
         parameters.put("contact_phone", group.getContactPhone());
         parameters.put("current_size", group.getCurrentSize());
         parameters.put("max_size", group.getMaxSize());
+        parameters.put("image_url", group.getImageUrl());
         
         Number newId = jdbcInsert.executeAndReturnKey(parameters);
         group.setId(newId.longValue());
@@ -101,7 +102,8 @@ public class SmallGroupRepository {
                 contact_email = :contactEmail,
                 contact_phone = :contactPhone,
                 current_size = :currentSize,
-                max_size = :maxSize
+                max_size = :maxSize,
+                image_url = :imageUrl
             WHERE id = :id
             """;
         
@@ -127,6 +129,7 @@ public class SmallGroupRepository {
                 .param("contactPhone", group.getContactPhone())
                 .param("currentSize", group.getCurrentSize())
                 .param("maxSize", group.getMaxSize())
+                .param("imageUrl", group.getImageUrl())
                 .update();
         
         return group;
@@ -273,6 +276,8 @@ public class SmallGroupRepository {
         
         Integer maxSize = rs.getObject("max_size", Integer.class);
         group.setMaxSize(maxSize);
+        
+        group.setImageUrl(rs.getString("image_url"));
         
         return group;
     }
