@@ -1,6 +1,5 @@
 package com.smallgroups.controller;
 
-import com.smallgroups.model.Church;
 import com.smallgroups.model.SmallGroup;
 import com.smallgroups.model.User;
 import com.smallgroups.service.ApprovalRequestService;

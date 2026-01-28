@@ -4,7 +4,6 @@ import com.smallgroups.model.SmallGroup;
 import com.smallgroups.model.User;
 import com.smallgroups.service.CustomUserDetailsService;
 import com.smallgroups.service.SmallGroupService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;

@@ -7,5 +7,7 @@ INSERT INTO churches (name, denomination, address, city, state, zip_code) VALUES
     ('Trinity Lutheran Church', 'Lutheran', '654 Faith Blvd', 'Springfield', 'IL', '62705');
 
 -- Sample admin user (password: admin123)
+--sample test@email.com  pass123 
+--
 INSERT INTO users (email, password, name, provider, enabled, role, approved_for_group_creation) VALUES
-    ('admin@example.com', '$2a$10$sH7Z8W8eQQVlQx3n8vXXhO0h8S/xRjXVGX1p6pKXMCXdXmT0Y0fza', 'Admin User', 'local', true, 'ADMIN', true);
+    ('test@email.com', '$2a$10$wBumkxgGYPQioAZP02JkBeixwa.z0e0VfEPGCJXCeZj7d9cpe5kAW', 'Admin User', 'local', true, 'ADMIN', true);
