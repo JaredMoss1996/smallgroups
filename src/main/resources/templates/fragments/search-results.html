@@ -11,7 +11,7 @@
             <h5 class="mb-3" th:text="'Found ' + ${groups.size()} + ' group(s)'">Found 0 group(s)</h5>
             
             <div th:each="group : ${groups}">
-                <div th:replace="~{fragments/group-card :: group-card(${group}, true)}"></div>
+                <div th:insert="~{fragments/group-card :: group-card(${group}, true)}"></div>
             </div>
         </div>
     </div>

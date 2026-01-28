@@ -42,7 +42,7 @@
             <span th:if="${group.type}" class="badge bg-dark" th:text="${group.type}">Type</span>
         </div>
         
-        <div th:if="${group.contactName or group.contactEmail or group.contactPhone}" class="mt-3 pt-3 border-top">
+        <div th:if="${group.contactName != null or group.contactEmail != null or group.contactPhone != null}" class="mt-3 pt-3 border-top">
             <strong>Contact:</strong>
             <span th:if="${group.contactName}" th:text="${group.contactName}">Contact Name</span>
             <br th:if="${group.contactEmail}">
@@ -55,7 +55,7 @@
             </span>
         </div>
         
-        <div th:if="${group.currentSize and group.maxSize}" class="mt-2">
+        <div th:if="${group.currentSize != null and group.maxSize != null}" class="mt-2">
             <small class="text-muted">
                 Group Size: <span th:text="${group.currentSize}">0</span> / <span th:text="${group.maxSize}">0</span>
             </small>
