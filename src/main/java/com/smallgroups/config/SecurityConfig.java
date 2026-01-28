@@ -45,14 +45,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/login", "/signup", "/api/auth/**", "/api/churches", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/signup/submit", "/api/auth/**", "/api/churches", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/create").hasAnyRole("GROUP_CREATOR", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/api/auth/login")
+                        .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/find", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**", "/h2-console/**")
+                        .ignoringRequestMatchers("/api/**", "/h2-console/**", "/signup/submit")
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 

@@ -58,8 +58,7 @@ public class WebController {
             @RequestParam String password,
             @RequestParam String confirmPassword,
             @RequestParam(required = false) Long homeChurchId,
-            Model model,
-            jakarta.servlet.http.HttpServletResponse response) {
+            Model model) {
         
         // Validate password match
         if (!password.equals(confirmPassword)) {
@@ -69,8 +68,6 @@ public class WebController {
         
         try {
             userDetailsService.registerUser(email, password, name, homeChurchId);
-            // Add HTMX redirect header for immediate redirect
-            response.setHeader("HX-Redirect", "/login");
             return "fragments/signup-fragments :: success";
         } catch (Exception e) {
             model.addAttribute("message", e.getMessage());
