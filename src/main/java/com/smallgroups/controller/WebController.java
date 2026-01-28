@@ -63,27 +63,29 @@ public class WebController {
         
         // Validate password match
         if (!password.equals(confirmPassword)) {
-            model.addAttribute("error", "Passwords do not match");
-            return "fragments/signup-fragments :: error(message='Passwords do not match')";
+            model.addAttribute("message", "Passwords do not match");
+            return "fragments/signup-fragments :: error(message=${message})";
         }
         
         try {
             userDetailsService.registerUser(email, password, name, homeChurchId);
-            // Add HTMX redirect header to redirect after 2 seconds
+            // Add HTMX redirect header for immediate redirect
             response.setHeader("HX-Redirect", "/login");
             return "fragments/signup-fragments :: success";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "fragments/signup-fragments :: error(message='" + e.getMessage() + "')";
+            model.addAttribute("message", e.getMessage());
+            return "fragments/signup-fragments :: error(message=${message})";
         }
     }
     
     @GetMapping("/find")
     public String findGroups(Model model, Authentication authentication) {
         // Load initial state
-        String email = authentication.getName();
-        User user = userDetailsService.getUserByEmail(email);
-        model.addAttribute("currentUser", user);
+        if (authentication != null) {
+            String email = authentication.getName();
+            User user = userDetailsService.getUserByEmail(email);
+            model.addAttribute("currentUser", user);
+        }
         return "find-groups";
     }
     
@@ -124,6 +126,10 @@ public class WebController {
     
     @PostMapping("/groups/{id}/join")
     public String joinGroup(@PathVariable Long id, Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "fragments/group-card :: group-card(group=${group}, showJoinButton=${showJoinButton})";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         
@@ -143,6 +149,10 @@ public class WebController {
     
     @PostMapping("/groups/{id}/leave")
     public String leaveGroup(@PathVariable Long id, Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "fragments/group-card :: group-card(group=${group}, showJoinButton=${showJoinButton})";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         
@@ -162,6 +172,10 @@ public class WebController {
     
     @GetMapping("/create")
     public String createGroup(Model model, Authentication authentication) {
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         
@@ -203,20 +217,25 @@ public class WebController {
             Model model,
             Authentication authentication) {
         
+        if (authentication == null) {
+            model.addAttribute("message", "User not authenticated");
+            return "fragments/approval-request :: approval-error(message=${message})";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         
         if (user == null) {
-            model.addAttribute("error", "User not found");
-            return "fragments/approval-request :: approval-error(message='User not found')";
+            model.addAttribute("message", "User not found");
+            return "fragments/approval-request :: approval-error(message=${message})";
         }
         
         // Check permissions
         if (!user.getApprovedForGroupCreation() && 
             !"ADMIN".equals(user.getRole()) && 
             !"GROUP_CREATOR".equals(user.getRole())) {
-            model.addAttribute("error", "You must be approved by your home church to create groups");
-            return "fragments/approval-request :: approval-error(message='You must be approved by your home church to create groups')";
+            model.addAttribute("message", "You must be approved by your home church to create groups");
+            return "fragments/approval-request :: approval-error(message=${message})";
         }
         
         // Create the group
@@ -248,8 +267,8 @@ public class WebController {
             groupService.createGroup(group);
             return "fragments/create-group-success :: success";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            return "fragments/approval-request :: approval-error(message='" + e.getMessage() + "')";
+            model.addAttribute("message", e.getMessage());
+            return "fragments/approval-request :: approval-error(message=${message})";
         }
     }
     
@@ -260,12 +279,17 @@ public class WebController {
             Model model,
             Authentication authentication) {
         
+        if (authentication == null) {
+            model.addAttribute("message", "User not authenticated");
+            return "fragments/approval-request :: approval-error(message=${message})";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         
         if (user == null) {
             model.addAttribute("message", "User not found");
-            return "fragments/approval-request :: approval-error(message='User not found')";
+            return "fragments/approval-request :: approval-error(message=${message})";
         }
         
         try {
@@ -273,12 +297,17 @@ public class WebController {
             return "fragments/approval-request :: approval-success";
         } catch (Exception e) {
             model.addAttribute("message", e.getMessage());
-            return "fragments/approval-request :: approval-error(message='" + e.getMessage() + "')";
+            return "fragments/approval-request :: approval-error(message=${message})";
         }
     }
     
     @GetMapping("/joined-groups")
     public String joinedGroups(Model model, Authentication authentication) {
+        if (authentication == null) {
+            model.addAttribute("groups", List.of());
+            return "joined-groups";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         
@@ -295,6 +324,11 @@ public class WebController {
     
     @GetMapping("/joined-groups/list")
     public String joinedGroupsList(Model model, Authentication authentication) {
+        if (authentication == null) {
+            model.addAttribute("groups", List.of());
+            return "fragments/joined-groups-list :: joined-groups-list(groups=${groups})";
+        }
+        
         String email = authentication.getName();
         User user = userDetailsService.getUserByEmail(email);
         

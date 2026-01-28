@@ -73,7 +73,8 @@
                     class="btn btn-secondary btn-sm" 
                     hx-post="@{/groups/{id}/leave(id=${group.id})}"
                     hx-swap="outerHTML"
-                    hx-target="closest .group-card">
+                    hx-target="closest .group-card"
+                    hx-confirm="Are you sure you want to leave this group?">
                 Leave Group
             </button>
         </div>
