@@ -42,8 +42,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService, DaoAuthenticationProvider authenticationProvider, PasswordEncoder passwordEncoder) throws Exception {
         http
+                .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/login", "/signup", "/signup/submit", "/api/auth/**", "/api/churches", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
@@ -53,6 +54,8 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
                         .defaultSuccessUrl("/find", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
