@@ -58,20 +58,40 @@ public class WebController {
             @RequestParam String password,
             @RequestParam String confirmPassword,
             @RequestParam(required = false) Long homeChurchId,
-            Model model) {
+            Model model,
+            jakarta.servlet.http.HttpServletRequest request) {
         
         // Validate password match
         if (!password.equals(confirmPassword)) {
             model.addAttribute("message", "Passwords do not match");
-            return "fragments/signup-fragments :: error(message=${message})";
+            model.addAttribute("churches", churchService.getAllChurches());
+            
+            // Check if this is an HTMX request
+            if ("true".equals(request.getHeader("HX-Request"))) {
+                return "fragments/signup-fragments :: error(message=${message})";
+            }
+            return "signup";
         }
         
         try {
             userDetailsService.registerUser(email, password, name, homeChurchId);
-            return "fragments/signup-fragments :: success";
+            
+            // Check if this is an HTMX request
+            if ("true".equals(request.getHeader("HX-Request"))) {
+                return "fragments/signup-fragments :: success";
+            }
+            
+            // For regular form submission, redirect to login with success message
+            return "redirect:/login?signup=success";
         } catch (Exception e) {
             model.addAttribute("message", e.getMessage());
-            return "fragments/signup-fragments :: error(message=${message})";
+            model.addAttribute("churches", churchService.getAllChurches());
+            
+            // Check if this is an HTMX request
+            if ("true".equals(request.getHeader("HX-Request"))) {
+                return "fragments/signup-fragments :: error(message=${message})";
+            }
+            return "signup";
         }
     }
     
