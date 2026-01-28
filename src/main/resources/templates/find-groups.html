@@ -86,7 +86,7 @@
             <h5 class="mb-3">Search Filters</h5>
             <form id="search-form" 
                   hx-get="/groups/search" 
-                  hx-trigger="change, keyup delay:500ms from:input, load"
+                  hx-trigger="change, keyup delay:500ms from:input"
                   hx-target="#results"
                   hx-indicator="#loading">
                 
@@ -191,7 +191,10 @@
             </form>
         </div>
 
-        <div id="results">
+        <div id="results" 
+             hx-get="/groups/search" 
+             hx-trigger="load"
+             hx-indicator="#loading">
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i> Loading groups...
             </div>
@@ -199,5 +202,30 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" onerror="console.log('Bootstrap JS not loaded')"></script>
+    <script>
+        // Fallback for when HTMX doesn't load
+        window.addEventListener('load', function() {
+            // Check if HTMX loaded by checking if htmx object exists and has process function
+            setTimeout(function() {
+                var resultsDiv = document.getElementById('results');
+                // Only load if HTMX didn't load AND results haven't been populated
+                if ((typeof htmx === 'undefined' || !htmx.process) && 
+                    resultsDiv.textContent.indexOf('Loading groups...') !== -1) {
+                    // HTMX didn't load, use fetch as fallback
+                    console.log('HTMX not available, using fetch fallback');
+                    fetch('/groups/search')
+                        .then(response => response.text())
+                        .then(html => {
+                            resultsDiv.innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error('Error loading groups:', error);
+                            resultsDiv.innerHTML = 
+                                '<div class="alert alert-danger">Failed to load groups. Please refresh the page.</div>';
+                        });
+                }
+            }, 100); // Small delay to let HTMX initialize if it loaded
+        });
+    </script>
 </body>
 </html>
