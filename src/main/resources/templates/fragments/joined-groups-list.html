@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Joined Groups List Fragment -->
+    <div th:fragment="joined-groups-list(groups)" id="joinedGroupsContainer">
+        <div th:if="${groups.isEmpty()}" class="alert alert-info">
+            <h5>You haven't joined any groups yet!</h5>
+            <p>Visit the <a href="/find" class="alert-link">Find Groups</a> page to discover groups you can join.</p>
+        </div>
+        
+        <div th:unless="${groups.isEmpty()}">
+            <h5 class="mb-3" th:text="'You are a member of ' + ${groups.size()} + ' group(s)'">You are a member of 0 group(s)</h5>
+            
+            <div th:each="group : ${groups}">
+                <div th:replace="~{fragments/group-card :: group-card(${group}, true)}"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

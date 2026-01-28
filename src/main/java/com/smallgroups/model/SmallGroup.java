@@ -54,4 +54,7 @@ public class SmallGroup {
     private String imageUrl;
     
     private Long creatorId;
+    
+    // Transient field for UI state, not persisted
+    private Boolean isMember = false;
 }

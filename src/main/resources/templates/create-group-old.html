@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Small Group</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" onerror="this.onerror=null;this.href='/css/bootstrap-fallback.css';">
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -53,18 +52,40 @@
                 <div class="form-container">
                     <h2 class="mb-4">Create a New Small Group</h2>
                     
-                    <!-- Show approval form if user cannot create groups -->
-                    <div th:if="${!canCreate}">
-                        <div th:replace="~{fragments/approval-request :: approval-form(${churches})}"></div>
+                    <div id="notApprovedMessage" class="alert alert-warning" style="display: none;">
+                        <h5>Approval Required</h5>
+                        <p>You need approval from your home church to create groups. Please select your home church and send a request for approval.</p>
+                        
+                        <div class="mb-3">
+                            <label for="approvalChurch" class="form-label">Select Your Home Church</label>
+                            <select class="form-select" id="approvalChurch">
+                                <option value="">Select a church...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="approvalMessage" class="form-label">Message to Church Admin</label>
+                            <textarea class="form-control" id="approvalMessage" rows="3" 
+                                      placeholder="Please explain why you'd like to create small groups..."></textarea>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="sendApprovalRequest">
+                            Send Approval Request
+                        </button>
+                        
+                        <div id="approvalSuccess" class="alert alert-success mt-3" style="display: none;">
+                            Your approval request has been sent successfully!
+                        </div>
+                        <div id="approvalError" class="alert alert-danger mt-3" style="display: none;"></div>
                     </div>
                     
-                    <div id="form-messages"></div>
+                    <div id="successMessage" class="alert alert-success" style="display: none;">
+                        Small group created successfully! <a href="/find">View all groups</a>
+                    </div>
                     
-                    <!-- Show create group form if user can create groups -->
-                    <form th:if="${canCreate}" 
-                          hx-post="/groups/create" 
-                          hx-target="#form-messages"
-                          hx-swap="innerHTML">
+                    <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+                    
+                    <form id="createGroupForm">
                         <h5 class="mb-3">Basic Information</h5>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
@@ -192,7 +213,7 @@
                             <div class="col-md-6">
                                 <div class="form-check mt-4">
                                     <input class="form-check-input" type="checkbox" id="childcareIncluded" 
-                                           name="childcareIncluded" value="true">
+                                           name="childcareIncluded">
                                     <label class="form-check-label" for="childcareIncluded">
                                         Childcare Included
                                     </label>
@@ -202,7 +223,7 @@
                             <div class="col-md-6">
                                 <div class="form-check mt-4">
                                     <input class="form-check-input" type="checkbox" id="handicapAccessible" 
-                                           name="handicapAccessible" value="true">
+                                           name="handicapAccessible">
                                     <label class="form-check-label" for="handicapAccessible">
                                         Handicap Accessible
                                     </label>
@@ -253,5 +274,126 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" onerror="console.log('Bootstrap JS not loaded')"></script>
+    <script>
+        // Check user permissions on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Load churches for approval request
+                const churchesResponse = await fetch('/api/churches');
+                const churches = await churchesResponse.json();
+                const select = document.getElementById('approvalChurch');
+                churches.forEach(church => {
+                    const option = document.createElement('option');
+                    option.value = church.id;
+                    option.textContent = `${church.name} - ${church.city}, ${church.state}`;
+                    select.appendChild(option);
+                });
+                
+                // Try to submit a test request to check permissions
+                const testResponse = await fetch('/api/groups', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}) // Empty data to check permission
+                });
+                
+                const responseData = await testResponse.json();
+                
+                if (testResponse.status === 403 || (responseData.error && responseData.error.includes('approved'))) {
+                    // User is not approved
+                    document.getElementById('notApprovedMessage').style.display = 'block';
+                    document.getElementById('createGroupForm').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking permissions:', error);
+            }
+        });
+        
+        // Handle approval request
+        document.getElementById('sendApprovalRequest').addEventListener('click', async function() {
+            const churchId = document.getElementById('approvalChurch').value;
+            const message = document.getElementById('approvalMessage').value;
+            
+            if (!churchId) {
+                document.getElementById('approvalError').textContent = 'Please select a church';
+                document.getElementById('approvalError').style.display = 'block';
+                return;
+            }
+            
+            if (!message) {
+                document.getElementById('approvalError').textContent = 'Please provide a message';
+                document.getElementById('approvalError').style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/approval-requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ churchId, message })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('approvalSuccess').style.display = 'block';
+                    document.getElementById('approvalError').style.display = 'none';
+                    document.getElementById('approvalChurch').disabled = true;
+                    document.getElementById('approvalMessage').disabled = true;
+                    this.disabled = true;
+                } else {
+                    throw new Error('Failed to send request');
+                }
+            } catch (error) {
+                document.getElementById('approvalError').textContent = 'Error: ' + error.message;
+                document.getElementById('approvalError').style.display = 'block';
+                document.getElementById('approvalSuccess').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('createGroupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {};
+            
+            formData.forEach((value, key) => {
+                if (key === 'childcareIncluded' || key === 'handicapAccessible') {
+                    data[key] = value === 'on' || value === 'true';
+                } else if (key === 'latitude' || key === 'longitude' || key === 'currentSize' || key === 'maxSize') {
+                    data[key] = value ? parseFloat(value) : null;
+                } else {
+                    data[key] = value || null;
+                }
+            });
+            
+            try {
+                const response = await fetch('/api/groups', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    e.target.reset();
+                    window.scrollTo(0, 0);
+                } else {
+                    throw new Error(result.error || 'Failed to create group');
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Error creating group: ' + error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                window.scrollTo(0, 0);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Approval Request Form Fragment -->
+    <div th:fragment="approval-form(churches)">
+        <div class="alert alert-warning">
+            <h5>Approval Required</h5>
+            <p>You need approval from your home church to create groups. Please select your home church and send a request for approval.</p>
+            
+            <form hx-post="/approval-request/send" hx-target="#approval-result" hx-swap="innerHTML">
+                <div class="mb-3">
+                    <label for="approvalChurch" class="form-label">Select Your Home Church</label>
+                    <select class="form-select" id="approvalChurch" name="churchId" required>
+                        <option value="">Select a church...</option>
+                        <option th:each="church : ${churches}" 
+                                th:value="${church.id}" 
+                                th:text="${church.name} + ' - ' + ${church.city} + ', ' + ${church.state}">
+                            Church Name - City, State
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="approvalMessage" class="form-label">Message to Church Admin</label>
+                    <textarea class="form-control" id="approvalMessage" name="message" rows="3" 
+                              placeholder="Please explain why you'd like to create small groups..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    Send Approval Request
+                </button>
+                
+                <div id="approval-result" class="mt-3"></div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Approval Success Message Fragment -->
+    <div th:fragment="approval-success">
+        <div class="alert alert-success">
+            Your approval request has been sent successfully! You will be notified when it's approved.
+        </div>
+    </div>
+    
+    <!-- Approval Error Message Fragment -->
+    <div th:fragment="approval-error(message)">
+        <div class="alert alert-danger" th:text="${message}">Error message</div>
+    </div>
+</body>
+</html>

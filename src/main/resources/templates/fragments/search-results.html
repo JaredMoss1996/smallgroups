@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Search Results Fragment -->
+    <div th:fragment="search-results(groups)">
+        <div th:if="${groups.isEmpty()}" class="alert alert-warning">
+            No groups found matching your criteria.
+        </div>
+        
+        <div th:unless="${groups.isEmpty()}">
+            <h5 class="mb-3" th:text="'Found ' + ${groups.size()} + ' group(s)'">Found 0 group(s)</h5>
+            
+            <div th:each="group : ${groups}">
+                <div th:replace="~{fragments/group-card :: group-card(${group}, true)}"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
