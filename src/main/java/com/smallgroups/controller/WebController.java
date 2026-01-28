@@ -46,8 +46,33 @@ public class WebController {
     }
     
     @GetMapping("/signup")
-    public String signup() {
+    public String signup(Model model) {
+        model.addAttribute("churches", churchService.getAllChurches());
         return "signup";
+    }
+    
+    @PostMapping("/signup/submit")
+    public String signupSubmit(
+            @RequestParam String name,
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam String confirmPassword,
+            @RequestParam(required = false) Long homeChurchId,
+            Model model) {
+        
+        // Validate password match
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match");
+            return "fragments/signup-fragments :: error(message='Passwords do not match')";
+        }
+        
+        try {
+            userDetailsService.registerUser(email, password, name, homeChurchId);
+            return "fragments/signup-fragments :: success";
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            return "fragments/signup-fragments :: error(message='" + e.getMessage() + "')";
+        }
     }
     
     @GetMapping("/find")

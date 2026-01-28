@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Signup Success Fragment -->
+    <div th:fragment="success">
+        <div class="alert alert-success">
+            Account created successfully! Redirecting to login...
+        </div>
+        <script>
+            setTimeout(function() { window.location.href = '/login'; }, 2000);
+        </script>
+    </div>
+    
+    <!-- Signup Error Fragment -->
+    <div th:fragment="error(message)">
+        <div class="alert alert-danger" th:text="${message}">Error message</div>
+    </div>
+</body>
+</html>
