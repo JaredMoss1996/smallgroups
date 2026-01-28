@@ -42,7 +42,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService, DaoAuthenticationProvider authenticationProvider, PasswordEncoder passwordEncoder) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService userDetailsService, DaoAuthenticationProvider authenticationProvider) throws Exception {
         http
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(authz -> authz
@@ -74,7 +74,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**", "/h2-console/**", "/signup/submit")
+                        .ignoringRequestMatchers("/api/**", "/h2-console/**")
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
