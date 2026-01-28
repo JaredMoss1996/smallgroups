@@ -207,17 +207,20 @@
         window.addEventListener('load', function() {
             // Check if HTMX loaded by checking if htmx object exists and has process function
             setTimeout(function() {
-                if (typeof htmx === 'undefined' || !htmx.process) {
+                var resultsDiv = document.getElementById('results');
+                // Only load if HTMX didn't load AND results haven't been populated
+                if ((typeof htmx === 'undefined' || !htmx.process) && 
+                    resultsDiv.textContent.indexOf('Loading groups...') !== -1) {
                     // HTMX didn't load, use fetch as fallback
                     console.log('HTMX not available, using fetch fallback');
                     fetch('/groups/search')
                         .then(response => response.text())
                         .then(html => {
-                            document.getElementById('results').innerHTML = html;
+                            resultsDiv.innerHTML = html;
                         })
                         .catch(error => {
                             console.error('Error loading groups:', error);
-                            document.getElementById('results').innerHTML = 
+                            resultsDiv.innerHTML = 
                                 '<div class="alert alert-danger">Failed to load groups. Please refresh the page.</div>';
                         });
                 }
