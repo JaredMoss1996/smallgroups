@@ -109,7 +109,10 @@ public class SmallGroupService {
     
     public void joinGroup(Long userId, Long groupId) {
         if (!userGroupRepository.existsByUserIdAndGroupId(userId, groupId)) {
-            userGroupRepository.save(userId, groupId);
+            int insertResult = userGroupRepository.save(userId, groupId);
+            if (insertResult == -1) {
+                throw new RuntimeException("Error occurred while joining the group.");
+            }
         }
     }
     

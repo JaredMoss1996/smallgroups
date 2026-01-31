@@ -16,13 +16,9 @@ import java.util.Map;
 public class UserGroupRepository {
     
     private final JdbcClient jdbcClient;
-    private final SimpleJdbcInsert jdbcInsert;
     
     public UserGroupRepository(JdbcClient jdbcClient, DataSource dataSource) {
         this.jdbcClient = jdbcClient;
-        this.jdbcInsert = new SimpleJdbcInsert(dataSource)
-                .withTableName("user_groups")
-                .usingGeneratedKeyColumns("id");
     }
     
     public List<UserGroup> findByUserId(Long userId) {
@@ -42,18 +38,24 @@ public class UserGroupRepository {
                 .single();
         return count > 0;
     }
-    
-    public UserGroup save(Long userId, Long groupId) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("user_id", userId);
-        parameters.put("group_id", groupId);
-        
-        Number newId = jdbcInsert.executeAndReturnKey(parameters);
-        UserGroup userGroup = new UserGroup();
-        userGroup.setId(newId.longValue());
-        userGroup.setUserId(userId);
-        userGroup.setGroupId(groupId);
-        return userGroup;
+
+    /* Attempts to insert a user-group link.
+     * Returns:
+     *  1  = insert succeeded (rows affected > 0)
+     *  0  = insert executed but no rows affected
+     * -1  = error occurred
+     */
+    public int save(Long userId, Long groupId) {
+        String sql = "INSERT INTO user_groups (user_id, group_id, joined_at) VALUES (:userId, :groupId, NOW())";
+        try {
+            int rows = jdbcClient.sql(sql)
+                    .param("userId", userId)
+                    .param("groupId", groupId)
+                    .update();
+            return rows > 0 ? 1 : 0;
+        } catch (Exception e) {
+            return -1;
+        }
     }
     
     public void delete(Long userId, Long groupId) {

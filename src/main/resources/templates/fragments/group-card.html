@@ -63,8 +63,8 @@
         
         <div class="mt-3" th:if="${showJoinButton}">
             <button th:if="${!group.isMember}" 
-                    class="btn btn-primary btn-sm" 
-                    hx-post="@{/groups/{id}/join(id=${group.id})}"
+                    class="btn btn-primary btn-sm"
+                    th:attr="hx-post=@{/groups/{id}/join(id=${group.id})}"
                     hx-swap="outerHTML"
                     hx-target="closest .group-card">
                 Join Group

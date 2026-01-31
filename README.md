@@ -126,12 +126,12 @@ Supported image formats include JPEG, PNG, and GIF. For best results, use images
 - `GET /logout` - Logout
 
 ### Groups
-- `GET /api/groups` - Get all groups
-- `GET /api/groups/{id}` - Get a specific group
-- `POST /api/groups` - Create a new group (requires authentication)
-- `PUT /api/groups/{id}` - Update a group (requires authentication)
-- `DELETE /api/groups/{id}` - Delete a group (requires authentication)
-- `GET /api/groups/search` - Search groups with filters
+- `GET /groups` - Get all groups
+- `GET /groups/{id}` - Get a specific group
+- `POST /groups` - Create a new group (requires authentication)
+- `PUT /groups/{id}` - Update a group (requires authentication)
+- `DELETE /groups/{id}` - Delete a group (requires authentication)
+- `GET /groups/search` - Search groups with filters
 
 ## Database Schema
 
